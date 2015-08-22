@@ -1,0 +1,19 @@
+:host {
+    display: block;
+}
+
+.hide {
+    display: none;
+}
+
+.time {
+    display: inline-block;
+    padding: .33em;
+    border-radius: 4px;
+    background: #000;
+    color: #fff;
+    font-size: 1.5rem;
+    font-family: 'Arvo', serif;
+    font-weight: normal;
+    line-height: 1;
+}

@@ -1,0 +1,109 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/elements/game-ticker/game-ticker.html">
+<link rel="import" href="/elements/game-doodad/game-doodad.html">
+<link rel="import" href="/elements/game-timer/game-timer.html">
+<link rel="import" href="/bower_components/pvc-globals/pvc-globals.html">
+<link rel="import" href="/bower_components/firebase-element/firebase-element.html">
+
+<polymer-element name="game-panel" attributes="doodads gameid">
+  <template>
+    <firebase-element id="auth" location="https://ss15-america.firebaseio.com" data="{{auth}}" ref="{{authRef}}"></firebase-element>
+    <firebase-element id="current-round" location="https://ss15-america.firebaseio.com/rounds/{{gameid}}" data="{{currentRound}}" ref="{{currentRoundRef}}"></firebase-element>
+    <firebase-element id="players" location="https://ss15-america.firebaseio.com/players" data="{{players}}" keys="{{playerKeys}}" ref="{{playersRef}}"></firebase-element>
+    <firebase-element id="game" location="https://ss15-america.firebaseio.com/games/{{gameid}}" data="{{game}}" ref="{{gameRef}}"></firebase-element>
+    <link rel="stylesheet" href="game-panel.css">
+    <link rel="stylesheet" href="/bower_components/csshake/csshake.min.css">
+
+    <game-ticker id="ticker" class="shake shake-slow shake-constant"></game-ticker>
+    <game-timer id="timer"></game-timer>
+    <div class="l">
+        <template repeat="{{ doodad in doodads }}">
+          <template if="{{ doodad | isMine }}">
+            <game-doodad
+                  class="l_1-2"
+                  gameid="{{ gameid }}"
+                  phrase="{{ doodad }}">
+            </game-doodad>
+          </template>
+        </template>
+    </div>
+    <pvc-globals values="{{globals}}"></pvc-globals>
+  </template>
+  <script>
+    Polymer({
+      doodads: [],
+      currentDuration: function() {
+        // Start at 10 seconds. Don't let it go below 3 seconds.
+        return 15 - this.currentRound.number > 3
+             ? 15 - this.currentRound.number
+             : 5;
+      },
+      restartTimer: function( duration, isNewRound ) {
+        this.$.timer.restartTimer( duration, isNewRound );
+      },
+      ready: function() {
+
+        this.addEventListener('timer-done', function() {
+          this.shadowRoot.querySelector('game-doodad').timeRanOut();
+        }.bind(this));
+
+        this.addEventListener('ticker-changed', function( data ) {
+          // console.log(data.detail.isNewRound);
+          var isNewRound = data.detail.isNewRound;
+          this.restartTimer( this.currentDuration(), isNewRound );
+        }.bind(this));
+
+        this.addEventListener('round-changed', function( data ) {
+          // console.log(data.detail.isNewRound);
+          var isNewRound = data.detail.isNewRound;
+          this.restartTimer( this.currentDuration(), isNewRound );
+          window.overlay.showNewRound( this.currentRound.number );
+        }.bind(this));
+
+      },
+      domReady: function() {
+        var pos = this.globals.currentPlayerPosition >= 0
+                ? utils.randomIntFromInterval( 0, this.currentRound.tasksLeft.length - 1 )
+                : this.globals.currentPlayerPosition;
+                // console.log(pos, this.globals.currentPlayerPosition, this.currentRound.tasksLeft);
+        // There's something strange going on... check for NaN to be safe.
+        pos = pos >= 0 ? pos : 0;
+        this.playersRef.child( this.authRef.getAuth().uid ).update({
+          currentTicker: this.currentRound.tasksLeft[ pos ]
+        });
+        this.currentRoundRef.child('tasksLeft').child( this.globals.currentPlayerPosition ).remove();
+        this.$.timer.startTimer( this.currentDuration() );
+
+        this.currentRoundRef.on('child_changed', function(childSnapshot, prevChildName) {
+          // console.log(childSnapshot, prevChildName);
+          if ( prevChildName == 'number' ) {
+            setTimeout(function(){
+              this.fire( 'round-changed', { isNewRound: true } );
+            }.bind(this), 500);
+          }
+        }.bind(this));
+
+      },
+      isMine: function( task ) {
+
+        var tmpDoodads = JSON.parse( JSON.stringify(this.doodads) ),
+            uid = this.authRef.getAuth().uid,
+            players = Object.keys( this.game.players ).sort(),
+            currentPlayerPosition = players.indexOf( uid );
+
+        this.globals.currentPlayerPosition = currentPlayerPosition;
+
+        var numDoodads = this.doodads.length,
+            fraction = numDoodads / players.length,
+            length = players.length,
+            tmp = [];
+
+        while ( length-- ) {
+          tmp.push( tmpDoodads.splice(0, fraction) );
+        }
+
+        return tmp[ currentPlayerPosition ].indexOf( task ) > -1;
+      }
+    });
+  </script>
+</polymer-element>

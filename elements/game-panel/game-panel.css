@@ -1,0 +1,44 @@
+:host {
+    display: block;
+    /*transform: perspective(500px) rotateX(35deg);*/
+}
+
+.l {
+    display: block;
+    margin: 0 -4px;
+}
+
+.l:before,
+.l:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.l:after {
+    clear: both;
+}
+
+.l_1-2,
+.l_1-3 {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: -4px;
+}
+
+.l_1-2 {
+    width: 50%;
+}
+
+.l_1-3 {
+    width: 33.33%;
+}
+
+#timer {
+    position: relative;
+    z-index: 100;
+    margin-top: -30px;
+}
+#ticker {
+    position: relative;
+    z-index: 101;
+}

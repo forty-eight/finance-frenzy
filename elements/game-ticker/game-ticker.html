@@ -1,0 +1,29 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/firebase-element/firebase-element.html">
+
+<polymer-element name="game-ticker">
+  <template>
+    <firebase-element id="current-round" location="https://ss15-america.firebaseio.com/rounds/{{gameid}}" data="{{ currentRound }}"></firebase-element>
+    <firebase-element id="players" location="https://ss15-america.firebaseio.com/players" data="{{players}}" keys="{{playerKeys}}" ref="{{playersRef}}"></firebase-element>
+    <firebase-element id="auth" location="https://ss15-america.firebaseio.com" data="{{auth}}" ref="{{authRef}}"></firebase-element>
+    <link rel="stylesheet" href="game-ticker.css">
+    <span class="message">
+      {{ message }}
+    </span>
+  </template>
+  <script>
+    Polymer({
+      message: 'Loading action...',
+      domReady: function() {
+        this.message = this.players[ this.authRef.getAuth().uid ].currentTicker;
+        this.playersRef.child( this.authRef.getAuth().uid ).on('child_changed', function( snapshot ) {
+          this.message = snapshot.val();
+        }.bind( this ));
+      },
+      messageChanged: function() {
+        // console.log('my ticker changed!');
+        this.fire( 'ticker-changed', {isNewRound: false} );
+      }
+    });
+  </script>
+</polymer-element>

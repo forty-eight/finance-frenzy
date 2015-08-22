@@ -1,0 +1,31 @@
+{
+  "name": "csshake",
+  "homepage": "http://elrumordelaluz.github.io/csshake/",
+  "authors": [
+    "Lionel <elrumordelaluz@hotmail.com>"
+  ],
+  "description": "Some CSS classes to move your DOM!",
+  "main": "csshake.css",
+  "keywords": [
+    "csshake",
+    "cssshake",
+    "shake"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "af4ace7e41",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "af4ace7e4126487275a1e7f5bd9bd534867bc89c"
+  },
+  "_source": "git://github.com/elrumordelaluz/csshake.git",
+  "_target": "*",
+  "_originalSource": "csshake"
+}

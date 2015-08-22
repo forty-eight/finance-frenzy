@@ -1,0 +1,749 @@
+<link rel="import" href="/bower_components/firebase-element/firebase-element.html">
+<link rel="import" href="/bower_components/pvc-globals/pvc-globals.html">
+<link rel="import" href="/elements/game-ticker/game-ticker.html">
+<link rel="import" href="/elements/game-round.html">
+
+<polymer-element name="home-page">
+  <template>
+
+    <style>
+      h1, h2 {
+        font-family: 'Arvo', serif;
+        font-weight: 700;
+        margin: 0 0 1em;
+        text-shadow:
+            1px 1px #E8A317;
+      }
+      .fw-400 {
+        font-weight: 400;
+      }
+      .fw-700 {
+        font-weight: 700;
+      }
+      @media screen and (max-width: 599px) {
+        .hide-on-small {
+          display: none !important;
+        }
+      }
+      a, a:link, a:visited {
+        display: inline-block;
+        color: #098017;
+        text-decoration: none;
+        border-bottom: 1px dotted #098017;
+        font-weight: 700;
+      }
+      a:hover, a:active {
+        color: #098017;
+        border-bottom: 1px solid #098017;
+      }
+      .logo {
+        font-family: 'Arvo', serif;
+        font-weight: 700;
+        font-size: 20px;
+        display: block;
+        color: #098017;
+        margin: 0;
+        padding: 10px 20px;
+        background: rgba(184,255,193,0.8);
+        display: inline-block;
+        /*transform: perspective(500px) rotateX(35deg);*/
+        box-shadow: 
+            1px 1px #E8A317,
+            2px 2px #E8A317,
+            3px 3px #E8A317;
+      }
+      .logo_inner {
+        text-shadow: 
+            1px 1px #E8A317;
+      }
+      @media screen and (min-width: 600px) {
+        .logo {
+            font-size: 60px;
+        }        
+        .logo__small {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+        }        
+      }
+      .yellow {
+        color: #E8A317;
+      }
+      .logo .spin-me_child {
+        font-weight: 400;
+        color: #E8A317;
+      }
+      .logo__small {
+        font-size: 20px;
+      }
+      #subheader {
+        font-size: 16px;
+        color: #098017;
+        display: block;
+        margin: 0 auto 20px;
+        max-width: 760px;
+        padding: 10px 20px;
+        background: rgba(184,255,193,0.8);
+        box-shadow: 
+            1px 1px #E8A317,
+            2px 2px #E8A317,
+            3px 3px #E8A317;
+      }
+      .hidden {
+        display: none;
+      }
+      .masthead {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .masthead__right {
+        text-align: right;
+      }
+      .wrapper {
+        padding: 20px;
+        background: rgba(0,0,0,0.65);
+        background: rgba(184,255,193,0.8);
+        color: white;
+        color: #098017;
+        box-shadow: 
+            1px 1px #E8A317,
+            2px 2px #E8A317,
+            3px 3px #E8A317;
+      }
+      @media screen and (min-width: 600px) {
+        .wrapper {
+          padding: 30px;
+        }
+      }
+      .msg {
+        font-style: italic;
+      }
+      .player {
+        background: transparent;
+        padding: 5px;
+        border: 5px solid #E8A317;
+      }
+      .player[ready] {
+        border: 5px solid #098017;
+      }
+      .player + .player_label-no + .player_label-yes {
+        display: none;
+      }
+      .player[ready] + .player_label-no {
+        display: none;
+      }
+      .player[ready] + .player_label-no + .player_label-yes {
+        display: block;
+        color: #098017;
+      }
+      .player_label {
+        display: block;
+        color: #E8A317;
+      }
+      #lobby {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .lobby-header {
+        margin-bottom: 15px;
+      }
+      #ready {
+        margin: 1em 0;
+      }
+      [for="gameUrl"] {
+        font-size: 18px;
+        margin-bottom: 6px;
+        display: block;
+      }
+      #gameUrl {
+        font-family: 'Arvo', serif;
+        font-size: 15px;
+        width: 100%;
+        padding: .5em .6em;
+        display: inline-block;
+        border: 1px solid #098017;
+        box-shadow: inset 0 1px 3px #098017;
+        border-radius: 4px;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        color: #098017;
+      }
+      #gameUrl:focus {
+        outline: 0;
+      }
+      #waitingMsg {
+        margin: 1em 0;
+      }
+      .share {
+        margin: 20px 0 25px;
+      }
+      @media screen and (min-width: 600px) {
+        #gameUrl {
+          font-size: 30px;
+        }
+        [for="gameUrl"] {
+          font-size: 24px;
+        }
+      }
+      .overlay {
+        background: rgba(0,0,0,0.75);
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        left: 0;
+        overflow: auto;
+      }
+      .overlay_inner {
+        width: 90%;
+        position: relative;
+        margin: 20px auto;
+        /*transform: translate(0, 50%) !important;*/
+        background: rgba(184,255,193,0.8);
+        color: #098017;
+        box-shadow:
+            1px 1px #E8A317,
+            2px 2px #E8A317,
+            3px 3px #E8A317;
+        /*margin: 0;*/
+      }
+      @media screen and (min-width: 600px) {
+        .overlay {
+          overflow: none;
+        }
+        .overlay_inner {
+          width: 500px;
+          margin: -200px 0 0 -250px;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          min-height: 400px;
+        }
+      }
+      .overlay_msg {
+        padding: 25px;
+      }
+      .overlay_msg h1 {
+        font-size: 24px;
+        margin: 0 0 .5em;
+      }
+      .overlay_msg p {
+        font-size: 16px;
+        margin: 0 0 1em;
+      }
+      .overlay,
+      .overlay_home,
+      .overlay_betwixt,
+      .overlay_game-over {
+        display: none;
+      }
+      .overlay__show-home,
+      .overlay__show-home .overlay_home,
+      .overlay__show-betwixt,
+      .overlay__show-betwixt .overlay_betwixt,
+      .overlay__show-game-over,
+      .overlay__show-game-over .overlay_game-over {
+        display: block;
+      }
+
+      .overlay_betwixt {
+        text-align: center;
+        font-size: 40px;
+        text-transform: capitalize;
+      }
+      #overlay_num {
+        display: block;
+        font-size: 200px;
+        font-weight: bold;
+      }
+
+      .overlay_game-over {
+        text-align: center;
+        font-size: 40px;
+        text-transform: capitalize;
+      }
+
+      .btn {
+        font-weight: 700;
+        display: inline-block;
+        padding: 15px;
+        background: rgba(184,255,193,1);
+        color: #098017;
+        line-height: 1;
+        border: 0;
+        font-family: 'Arvo', serif;
+        font-size: 1em;
+        cursor: pointer;
+        box-shadow: 
+            1px 1px #E8A317,
+            2px 2px #E8A317,
+            3px 3px #E8A317;
+      }
+
+      .btn:focus {
+        outline: 2px dotted green;
+      }
+      .btn .spin-me_child {
+        font-weight: 400;
+      }
+
+      .players {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+      }
+
+      .players_item {
+        display: inline-block;
+        margin-right: 16px;
+        vertical-align: middle;
+      }
+
+      .players_item:first-child {
+        width: 20px;
+      }
+
+      #round,
+      #health {
+          display: inline-block;
+          background: #000;
+          color: #E8A317;
+          padding: .5em;
+          font-size: 1rem;
+          font-family: 'Arvo', serif;
+          font-weight: normal;
+          line-height: 1;
+      }
+      #health:before {
+        content: "Lives:";
+      }
+      #restart,
+      #muteSound {
+        font-size: 12px;
+        padding: 8px;
+        margin-top: 10px;
+      }
+      @media screen and (min-width: 600px) {
+        #restart,
+        #muteSound {
+          position: absolute;
+          top: 0;
+          right: 0;
+        }
+        #restart {
+          z-index: 2000;
+        }
+        #muteSound {
+          position: absolute;
+          top: 0;
+          right: auto;
+          left: 0;
+        }
+      }
+
+      .spin-me {
+        position: relative;
+      }
+      .spin-me_child {
+        line-height: 1;
+        transform-origin: center center;
+        -webkit-animation: spin 1s linear infinite;
+        -moz-animation: spin 1s linear infinite;
+        animation: spin 1s linear infinite;
+      }
+      @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+      @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+      @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+      .controls {
+        padding: 10px;
+      }
+
+      #bottom-footer {
+        text-align: center;
+        margin-top: 30px;
+      }
+
+      #bottom-footer .bottom-footer_inner {
+        display: inline-block;
+        background: rgba(184,255,193,0.8);
+        padding: 15px;
+        box-shadow: 
+            1px 1px #E8A317,
+            2px 2px #E8A317,
+            3px 3px #E8A317;
+      }
+
+      @-webkit-keyframes pulse_animation {
+        0% { -webkit-transform: scale(1); }
+        30% { -webkit-transform: scale(1); }
+        40% { -webkit-transform: scale(1.7); }
+        50% { -webkit-transform: scale(1); }
+        60% { -webkit-transform: scale(1); }
+        70% { -webkit-transform: scale(1.7); }
+        80% { -webkit-transform: scale(1); }
+        100% { -webkit-transform: scale(1); }
+      }
+      .pulse {
+        display: inline-block;
+        -webkit-animation-name: 'pulse_animation';
+        -webkit-animation-duration: 1000ms;
+        /*-webkit-transform-origin: 70% 70%;*/
+        -webkit-animation-iteration-count: 1;
+        -webkit-animation-timing-function: linear;
+      }
+
+    </style>
+    <link rel="stylesheet" href="/bower_components/csshake/csshake.min.css">
+
+    <firebase-element id="auth" location="https://ss15-america.firebaseio.com" data="{{auth}}" ref="{{authRef}}"></firebase-element>
+    <firebase-element id="corpus" location="https://ss15-america.firebaseio.com/corpus" data="{{corpus}}" ref="{{corpusRef}}"></firebase-element>
+    <firebase-element id="game" location="https://ss15-america.firebaseio.com/games/{{gameid}}" data="{{game}}" ref="{{gameRef}}"></firebase-element>
+    <firebase-element id="rounds" location="https://ss15-america.firebaseio.com/rounds" data="{{rounds}}" ref="{{roundsRef}}"></firebase-element>
+    <firebase-element id="current-round" location="https://ss15-america.firebaseio.com/rounds/{{gameid}}" data="{{currentRound}}"></firebase-element>
+    <firebase-element id="players" location="https://ss15-america.firebaseio.com/players" data="{{players}}" keys="{{playerKeys}}" ref="{{playersRef}}"></firebase-element>
+
+    <template if="{{game.ready && !game.over}}">
+
+        <div class="masthead masthead__right">
+            <h1 class="logo logo__small shake shake-constant">
+                <span class="spin-me_child hide-on-small">¥</span>
+                <span class="spin-me_child hide-on-small">£</span>
+                <span class="spin-me_child">$</span>
+                <span class="spin-me_child">¢</span>
+                &nbsp;
+                <span class="logo_inner">Finance Frenzy</span>
+                &nbsp;
+                <span class="spin-me_child">¢</span>
+                <span class="spin-me_child">$</span>
+                <span class="spin-me_child hide-on-small">£</span>
+                <span class="spin-me_child hide-on-small">¥</span>
+            </h1>
+        </div>
+    </template>
+    <template if="{{!game.ready}}">
+        <div class="masthead">
+            <h1 class="logo shake shake-constant">
+                <span class="spin-me_child hide-on-small">¥</span>
+                <span class="spin-me_child hide-on-small">£</span>
+                <span class="spin-me_child">$</span>
+                <span class="spin-me_child">¢</span>
+                &nbsp;
+                <span class="logo_inner">Finance Frenzy</span>
+                &nbsp;
+                <span class="spin-me_child">¢</span>
+                <span class="spin-me_child">$</span>
+                <span class="spin-me_child hide-on-small">£</span>
+                <span class="spin-me_child hide-on-small">¥</span>
+            </h1>
+        </div>
+    </template>
+
+    <div id="subheader" hidden?={{game.ready}}>
+        <p><b>Finance Frenzy</b> is a real-time in-person cooperative party game for 2 to infinity players a la <a href="http://www.sleepingbeastgames.com/spaceteam/">Spaceteam</a>. Each player needs a desktop computer running <a href="https://www.google.com/chrome">Google Chrome</a> (we're working hard to bring this to other platforms).</p>
+    </div>
+
+    <!-- #lobby -->
+    <div id="lobby" hidden?={{game.ready}}>
+        <div class="wrapper">
+          <h2 class="lobby-header">
+            The Lobby
+          </h2>
+
+          <div class="share">
+            <label for="gameUrl">Share this link with a nearby friend:</label>
+            <input id="gameUrl" type="text" value="" on-click="{{selectAll}}">
+            <em>(If you have no friends, you can open the link in a second tab.)</em>
+          </div>
+
+          <ul class="players">
+            <template repeat="{{key in playerKeys}}">
+              <template if="{{players[key].gameid | teammates}}">
+                <li class="players_item">
+                    <img src="{{players[key].avatar}}" alt="{{key}}" class="player" ready?="{{players[key].ready}}" data-uid="{{key}}" id="{{key | slugify}}">
+                    <span class="player_label player_label-no fw-700">
+                        Not ready
+                    </span>
+                    <span class="player_label player_label-yes fw-700">
+                        Ready!
+                    </span>
+                </li>
+              </template>
+            </template>
+            <li class="players_item">
+                <div id="ready">
+                  <button class="btn" id="initGame" on-click="{{initGame}}">
+                      Ready!?
+                      &nbsp;
+                      <span class="fw-400">Start the game!</span>
+                  </button>
+                </div>
+                <div id="waitingMsg" class="hidden msg" hidden?={{game.ready}}>
+                    Waiting for your teammates to be ready...
+                    <span class="spin-me_child yellow">$</span>
+                    <span class="spin-me_child yellow">¢</span>
+                    <span class="spin-me_child yellow">¥</span>
+                    <span class="spin-me_child yellow">£</span>
+                </div>
+            </li>
+          </ul>
+
+        </div><!-- /.wrapper -->
+    </div><!-- /#lobby -->
+
+    <!-- #game -->
+    <template if="{{game.ready && !game.over}}">
+      <h2 id="round">Round #{{currentRound.number}}</h2>
+      <div id="health" class="{{healthClass}}">
+        <span>{{game.health}}</span>
+      </div>
+      <game-round round-number="{{currentRound.number}}" gameid="{{gameid}}"></game-round>
+    </template>
+
+    <!-- #game-over -->
+    <template if="{{game.over}}">
+      <h1>GAME OVER!</h1>
+    </template>
+
+    <!-- #game-over -->
+    <pvc-globals values="{{globals}}"></pvc-globals>
+
+    <!-- #overlay -->
+    <section class="overlay" id="overlay">
+        <div class="overlay_inner">
+            <div class="overlay_msg overlay_home">
+                <h1>Finance Frenzy</h1>
+                <!-- <p>Do you like pushing buttons and shouting at your friends? Do you like to shunt the unmarketable parcel? If you answered yes, or no, then you might have what it takes to survive Finance Frenzy.</p> -->
+                <p><b>Finance Frenzy</b> is a real-time in-person cooperative party game for 2 to infinity players a la <a href="http://www.sleepingbeastgames.com/spaceteam/">Spaceteam</a>. Each player needs a desktop computer running <a href="https://www.google.com/chrome">Google Chrome</a> (we're working hard to bring this to other platforms).</p>
+                <button class="btn spin-me" on-click="{{closeOverlay}}">
+                    Join the lobby and invite some friends!
+                    &nbsp;
+                    <span class="spin-me_child yellow">$</span>
+                    <span class="spin-me_child yellow">¢</span>
+                </button>
+            </div>
+            <div class="overlay_msg overlay_betwixt" id="overlay_betwixt">
+                Get ready for round <span id="overlay_num"></span>
+            </div>
+            <div class="overlay_msg overlay_game-over">
+              <div class="shake shake-slow shake-constant">
+                <p>You were overwhelmed by divestments, appreciations and undesignations.</p>
+                <p>The financial world has collapsed.</p>
+                <p>Thanks Obama...</p>
+                <br>
+                <h1 class="spin-me">
+                    <span class="spin-me_child">
+                        Game over
+                    </span>
+                </h1>
+                <br>
+                <br>
+              </div>
+            </div>
+        </div>
+    </section>
+
+    <a class="btn" id="restart" href="/">
+        New game
+    </a>
+    <button class="btn" id="muteSound" on-click="{{muteSound}}">{{mutedText}}</button>
+
+    <footer id="bottom-footer">
+        <div class="bottom-footer_inner">
+            <a href="/about.html">More info</a> about this game.
+            Optimized for <a href="https://www.google.com/chrome">Google Chrome</a>. Made by <a href="http://twitter.com/contolini" target="_blank">@contolini</a> and <a href="http://twitter.com/himedlooff" target="_blank">@himedlooff</a>
+        </div>
+    </footer>
+
+  </template>
+  <script>
+    Polymer({
+      observe: {
+        'game.over': 'showGameOverOverlay'
+      },
+      showGameOverOverlay: function() {
+        if ( this.game && this.game.over ) {
+          tunez.game.fade(1.0, 0.0, 2000, function() {
+            tunez.intro.play().fade(0, 0.8, 1000);
+          });
+          window.overlay.show('game-over');
+        }
+      },
+      selectAll: function() {
+        this.$.gameUrl.select();
+      },
+      domReady: function() {
+
+        // Generate a new game ID.
+    		if ( !window.location.hash.substr(1).length && window.location.pathname.length < 2 ) {
+          document.querySelector('app-router').go('/' + Math.random().toString(36).substring(2), {replace: true});
+        }
+
+        tunez.intro.play();
+
+        this.addEventListener('pulse-health', function() {
+          this.healthClass = 'pulse'
+          setTimeout(function(){
+            this.healthClass = '';
+          }.bind(this), 1000);
+        }.bind(this));
+
+        // Set the overlay element
+        window.overlay.el = this.$.overlay;
+        window.overlay.numEl = this.$.overlay_num;
+        window.overlay.showNewRound = function( num ) {
+          window.overlay.numEl.innerHTML = num;
+          window.overlay.show('betwixt');
+          setTimeout(function(){
+            window.overlay.hide();
+          }, 3000);
+        };
+        // window.overlay.show( 'home' );
+        // window.overlay.showNewRound( 2 );
+        // window.overlay.show( 'game-over' );
+
+        // Set the share url
+        this.$.gameUrl.value = window.location.href;
+
+        // Store the corpus in Firebase.
+        this.corpusRef.set( corpus );
+
+        // Check if the user already has an active session.
+        if ( !this.authRef.getAuth() ) {
+          // Authenticate the user anonymously.
+          this.authRef.authAnonymously( function( error, authData ) {
+            if ( error ) {
+              console.log('Login Failed!', error);
+            }
+          }, {remember: 'sessionOnly'});
+        }
+
+        // Initialize the game in Firebase.
+        this.gameRef.set({
+          ready: false,
+          over: false,
+          health: 10,
+          round: 1,
+          timestamp: new Date().getTime()
+        });
+
+        // On authentication.
+        this.authRef.onAuth(function( authData ) {
+          if ( !authData ) return;
+          // Store the user's info to the 'players' child.
+          this.playersRef.child( authData.uid ).set({
+            avatar: 'http://www.gravatar.com/avatar/' + CryptoJS.MD5( authData.uid ) + '?d=retro',
+            gameid: this.gameid,
+            ready: false,
+            authData: authData,
+            timestamp: new Date().getTime(),
+            players: null
+          });
+          // Store the current player's UID globally.
+          this.globals.currentPlayerUid = authData.uid
+          // Save the user to the game's players array.
+          // this.gameRef.child('players').push({
+          //   uid: authData.uid
+          // });
+          // If the user closes the tab, delete them.
+          this.playersRef.child( authData.uid ).onDisconnect().remove();
+        }.bind( this ));
+
+        if (localStorage.getItem('ff-mute')) {
+          this.muteSound();
+        }
+
+      },
+      closeOverlay: function() {
+        window.overlay.hide();
+      },
+      teammates: function( gameid ) {
+        return gameid == this.gameid;
+      },
+      slugify: function( text ) {
+        return text.replace(/[^\w\-]+/g, '');
+      },
+      newGame: function() {
+        window.location.href = "/"
+      },
+      muted: false,
+      mutedText: 'Mute sound',
+      muteSound: function() {
+        if ( this.muted ) {
+          Howler.unmute();
+          this.muted = false;
+          this.mutedText = 'Mute sound';
+          localStorage.removeItem('ff-mute');
+          return;
+        }
+        Howler.mute();
+        this.mutedText = 'Unmute sound';
+        this.muted = true;
+        localStorage.setItem('ff-mute', true);
+      },
+      initGame: function( e ) {
+        e.preventDefault();
+
+        this.globals.roundNumber = 1;
+
+        var authData = this.authRef.getAuth();
+        this.playersRef.child( authData.uid ).update({
+          ready: true
+        });
+        this.$.ready.style.display = 'none';
+        this.$.waitingMsg.style.display = 'block';
+
+        var waitingFor = 0;
+        this.playersRef.on('value', function( snapshot ) {
+          snapshot.forEach(function( player ) {
+            // If the player is a part of the current game and they're *not* ready,
+            // increment the `waitingFor` variable so we know to wait for them.
+            if ( player.val().gameid === this.gameid && !player.val().ready ) {
+              waitingFor++;
+            } else {
+              this.gameRef.child('players').child( authData.uid ).update({
+                ready: true
+              });
+            }
+          }.bind(this));
+        }.bind(this), function ( errorObject ) {
+          console.log('The read failed: ' + errorObject.code);
+        });
+
+        // If we're not waiting for anyone, start the game!
+        if ( !waitingFor ) {
+          console.log('Everyone is ready!');
+          this.game.ready = true;
+          updateGame.apply( this );
+        } else {
+          console.log('Waiting for teammates...');
+        }
+
+        function updateGame() {
+          this.gameRef.child('players').once('value', function( snapshot ) {
+            this.gameRef.update({
+              numPlayers: snapshot.numChildren()
+            });
+            startGame.apply( this );
+          }.bind(this));
+        }
+
+        function startGame() {
+          var tasks = utils.grabTasks( this.game.numPlayers * 6, corpus );
+          this.globals.roundRef = this.roundsRef.child( this.gameid ).update({
+            number: this.globals.roundNumber,
+            tasks: tasks,
+            tasksLeft: tasks
+          });
+          tunez.intro.fade(1.0, 0.0, 2000, function() {
+            tunez.intro.pause();
+            tunez.game.play().fade(0, 0.8, 2000);
+          });
+        }
+
+      }
+    });
+  </script>
+</polymer-element>

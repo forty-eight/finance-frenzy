@@ -1,0 +1,154 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/pvc-globals/pvc-globals.html">
+
+<polymer-element name="game-doodad" attributes="phrase gameid">
+  <template>
+    <firebase-element id="auth" location="https://ss15-america.firebaseio.com" data="{{auth}}" ref="{{authRef}}"></firebase-element>
+    <firebase-element id="game" location="https://ss15-america.firebaseio.com/games/{{gameid}}" data="{{game}}" ref="{{gameRef}}"></firebase-element>
+    <firebase-element id="players" location="https://ss15-america.firebaseio.com/players" data="{{players}}" keys="{{playerKeys}}" ref="{{playersRef}}"></firebase-element>
+    <firebase-element id="current-round" location="https://ss15-america.firebaseio.com/rounds/{{gameid}}" data="{{currentRound}}" ref="{{currentRoundRef}}"></firebase-element>
+    <link rel="stylesheet" href="game-doodad.css">
+    <div class="wrapper">
+        <div class="label">
+            <!-- <content></content> -->
+            {{ phrase | getNoun }}
+        </div>
+        <button class="btn"
+                on-click="{{ checkTicker }}">
+            <span class="btn_outer">
+                <span class="btn_height">
+                    <span class="btn_inner">
+                        {{ phrase | getVerb }}
+                    </span>
+                </span>
+            </span>
+        </button>
+    </div>
+    <pvc-globals values="{{globals}}"></pvc-globals>
+  </template>
+  <script>
+    (function() {
+      var tickerOwner = false;
+
+      Polymer({
+        domReady: function() {
+          // this.addEventListener('timer-done', function(){
+          //   // this.$.timer.hide();
+          //   console.log('timer done, yay!');
+          //   tickerOwner = this.globals.currentPlayerUid
+          //   this.loseHealth();
+          //   this.checkRoundStatus();
+          // });
+          // setInterval(function(){
+          //   console.log(this.isTimeUp);
+          // }.bind(this),500);
+          // console.log(this.timeIsUp);
+        },
+        timeRanOut: function() {
+          // console.log('OH DEAR GOD THANK YOU!');
+          tickerOwner = this.globals.currentPlayerUid
+          this.loseHealth();
+          this.checkRoundStatus();
+        },
+        getVerb: function( sentence ) {
+          return sentence.split(' the ')[0];
+        },
+        getNoun: function( sentence ) {
+          return sentence.split(' the ')[1];
+        },
+        playRandomSfx: function( status ) {
+          console.log(status);
+          var sfx = tunez.sfx[ status ];
+          sfx[ Math.floor(Math.random() * sfx.length) ].play();
+        },
+        checkTicker: function(event, detail, sender) {
+          this.playersRef.once('value', function( snapshot ) {
+            snapshot.forEach(function( player ) {
+              if ( player.val().gameid !== this.gameid ) return;
+              if ( player.val().currentTicker === this.phrase ) {
+                tickerOwner = player.val().authData.uid;
+              }
+            }.bind(this));
+          }.bind(this));
+          // If the item clicked doesn't match anyone's ticker, lose health.
+          if ( !tickerOwner ) {
+            this.loseHealth();
+            this.playRandomSfx('failure');
+          } else {
+            // Otherwise, they selected the right thing *or* the timer ran out.
+            this.checkRoundStatus();
+            this.playRandomSfx('success');
+          }
+        },
+        checkRoundStatus: function() {
+          // If all the tasks are gone, go to the next round.
+          if ( !this.currentRound.tasksLeft ) {
+            this.nextRound();
+          } else {
+            this.changeTicker();
+          }
+        },
+        changeTicker: function( opts ) {
+          opts = opts ||  {};
+          var firstKey = Object.keys(this.currentRound.tasksLeft)[0],
+              pos = this.globals.currentPlayerPosition >= 0
+                  ? utils.randomIntFromInterval( 0, this.currentRound.tasksLeft.length - 1 )
+                  : this.globals.currentPlayerPosition;
+
+          pos = pos >= 0 ? pos : 0;
+          // If the `all` option is passed, reset everyone's tickers. This needs
+          // to happen at the start of new rounds.
+          if ( opts.all ) {
+            this.playersRef.once('value', function( snapshot ) {
+              snapshot.forEach(function(childSnapshot) {
+                this.playersRef.child( childSnapshot.key() ).update({
+                  currentTicker: this.currentRound.tasksLeft[ Object.keys(this.currentRound.tasksLeft)[pos] ]
+                });
+                this.currentRoundRef.child('tasksLeft').child( pos ).remove();
+              }.bind(this));
+            }.bind(this));
+            // this.fire( 'ticker-reset', { isNewRound: opts.all } );
+            tickerOwner = false;
+            return;
+          }
+          // Otherwise, we just want to reset the ticker of the person who had
+          // the last correct one.
+          this.playersRef.child( tickerOwner ).update({
+            currentTicker: this.currentRound.tasksLeft[ firstKey ]
+          });
+          this.currentRoundRef.child('tasksLeft').child( firstKey ).remove();
+          tickerOwner = false;
+        },
+        nextRound: function() {
+          var tasks = utils.grabTasks( this.game.numPlayers * 6, corpus );
+          this.globals.roundNumber = this.globals.roundNumber + 1;
+          this.currentRoundRef.update({
+            number: this.globals.roundNumber,
+            tasks: tasks,
+            tasksLeft: tasks
+          });
+          this.changeTicker({all: true});
+          tickerOwner = false;
+          // this.fire( 'new-round', {} );
+        },
+        loseHealth: function() {
+          var newHealth = this.game.health - 1;
+          this.gameRef.update({
+            health: newHealth
+          });
+          this.fire( 'pulse-health', {} );
+          if ( this.game.health < 1 ) {
+            this.gameOver();
+          }
+        },
+        gameOver: function() {
+          // console.log('You lose!');
+          this.gameRef.update({
+            over: true
+          });
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

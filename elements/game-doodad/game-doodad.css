@@ -1,0 +1,116 @@
+:host {
+    display: block;
+}
+
+.wrapper {
+    display: block;
+    margin: 4px;
+    padding: 10px;
+    background: rgba(0,0,0,0.65);
+}
+
+.label {
+    margin-bottom: 10px;
+    color: #000;
+    font-size: .7rem;
+    font-family: 'Arvo', serif;
+    font-weight: normal;
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+    color: #E8A317;
+}
+
+/* http://www.sanwebe.com/2014/02/css3-buttons-examples-with-effects-animations */
+/* http://cssdeck.com/labs/3d-download-button */
+.btn {
+    display: block;
+    height: 40px;
+    width: 100%;
+    margin: 0 0 15px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: 'Arvo', serif;
+}
+
+.btn:focus {
+    outline: none;
+}
+
+.btn_outer {
+    display: block;
+    position: relative;
+    height: 100%;
+    padding: 10px;
+    background: rgba(0,0,0,0.65);
+    border-radius: 14px;
+    box-shadow: inset rgba(0,0,0,0.85) 0 1px 5px;
+}
+
+.btn_height {
+    display: block;
+    position: relative;
+    height: 100%;
+    margin-top: -15px;
+    padding-bottom: 15px;
+    background: #39a02d;
+    border-radius: 16px;
+    box-shadow: rgba(0,0,0,0.85) 0 1px 1px, inset rgba(0,0,0,0.35) 0 -2px 8px;
+    transition: all 0.1s ease-in-out;
+}       
+
+.btn:hover .btn_height {
+    margin-top: -10px;
+    padding-bottom: 10px;
+    background: #3aaf2d;
+    box-shadow: rgba(0,0,0,0.25) 0 1px 1px, inset rgba(0,0,0,0.35) 0 -2px 6px;
+}
+
+.btn:active .btn_height {
+    margin-top: 0;
+    padding-bottom: 0;
+}
+
+.btn_inner {
+    display: block;
+    font-size: 16px;
+    line-height: 35px;
+    position: relative;
+    height: 100%;
+    text-align: center;
+    text-shadow: #8aff7b 0 0 1px;
+    background: #44d135;
+    background: linear-gradient(top, #80ec75 0%,#43d034 100%); /* W3C */
+    border-radius: 12px;
+    box-shadow: inset rgba(255,255,255,0.85) 0 0 1px;
+    transition: all 0.1s ease-in-out;
+}
+
+.btn:hover .btn_inner{
+    text-shadow: #99f48d 0 0 1px;
+    background: #43d034; /* Old browsers */
+    background: linear-gradient(top, #43d034 0%,#67e45c 100%); /* W3C */
+}
+
+.btn:active .btn_inner{
+    text-shadow: #319926 0 1px 0;
+    border-radius: 16px;
+    box-shadow: inset rgba(0,0,0,0.9) 0 0 8px;
+    background: #1d7d12; /* Old browsers */
+    background: linear-gradient(top, #1d7d12 0%,#4fd342 100%); /* W3C */
+}
+
+@media screen and (min-width: 600px) {
+    .btn {
+        height: 80px;
+    }
+    .btn_inner {
+        font-size: 30px;
+        letter-spacing: .05em;
+        line-height: 75px;
+    }
+    .label {
+        font-size: 1rem;
+    }
+}

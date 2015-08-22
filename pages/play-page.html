@@ -1,0 +1,36 @@
+<link rel="import" href="/bower_components/firebase-element/firebase-element.html">
+<link rel="import" href="/bower_components/pvc-globals/pvc-globals.html">
+<link rel="import" href="/layouts/sidebar-layout.html">
+
+<polymer-element name="home-page">
+  <template>
+    <style>
+
+    </style>
+    <firebase-element id="game" location="https://ss15-america.firebaseio.com/games/{{gameid}}" data="{{game}}" ref="{{gameRef}}"  log="true"></firebase-element>
+    <firebase-element id="players" location="https://ss15-america.firebaseio.com/players" data="{{players}}" keys="{{playerKeys}}" log="true"></firebase-element>
+    <sidebar-layout selected="home">
+
+      Teammates:
+      <ul>
+        <template repeat="{{key in playerKeys}}">
+          <template if="{{players[key].gameid | teammates}}">
+            <li>{{players[key].username}}</li>
+          </template>
+        </template>
+      </ul>
+
+    </sidebar-layout>
+    <pvc-globals values="{{globals}}"></pvc-globals>
+  </template>
+  <script>
+    Polymer({
+      domReady: function() {
+
+      },
+      teammates: function( gameid ) {
+        return gameid == this.gameid;
+      }
+    });
+  </script>
+</polymer-element>
