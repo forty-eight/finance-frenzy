@@ -15,7 +15,9 @@
     Polymer({
       message: 'Loading action...',
       domReady: function() {
-        this.message = this.players[ this.authRef.getAuth().uid ].currentTicker;
+        this.playersRef.child( this.authRef.getAuth().uid ).once('value', function( snapshot ) {
+          this.message = snapshot.val().currentTicker;
+        }.bind( this ));
         this.playersRef.child( this.authRef.getAuth().uid ).on('child_changed', function( snapshot ) {
           this.message = snapshot.val();
         }.bind( this ));
