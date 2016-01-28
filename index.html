@@ -5,16 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>Finance Frenzy</title>
-    <script src="/bower_components/webcomponentsjs/webcomponents.min.js"></script>
-    <link rel="stylesheet" href="/css/styles.css" shim-shadowdom>
-    <link rel="import" href="/bower_components/app-router/app-router.html">
+    <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css" shim-shadowdom>
+    <link rel="import" href="bower_components/app-router/app-router.html">
     <link href='http://fonts.googleapis.com/css?family=Arvo:400,700,400italic' rel='stylesheet' type='text/css'>
   </head>
   <body unresolved>
     <app-router>
-      <app-route path="/:gameid" import="/pages/home-page.html"></app-route>
-      <app-route path="/about" import="/pages/about-page.html"></app-route>
-      <app-route path="*" import="/pages/not-found-page.html"></app-route>
+      <app-route path="/:gameid" import="pages/home-page.html"></app-route>
+      <app-route path="/about" import="pages/about-page.html"></app-route>
+      <app-route path="*" import="pages/not-found-page.html"></app-route>
     </app-router>
     <script>
       // if ( !window.location.hash.substr(1).length && window.location.pathname.length < 2 ) {
@@ -22,43 +22,43 @@
       // }
     </script>
     <script src="http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js"></script>
-    <script src="/scripts/utils.js"></script>
-    <script src="/scripts/overlay.js"></script>
-    <script src="/bower_components/howler.js/howler.min.js"></script>
-    <script src="/corpus.js"></script>
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/overlay.js"></script>
+    <script src="bower_components/howler.js/howler.min.js"></script>
+    <script src="corpus.js"></script>
     <script>
       var tunez = {
         intro: new Howl({
-          urls: ['/audio/coworkers.mp3', '/audio/coworkers.ogg'],
+          urls: ['audio/coworkers.mp3', 'audio/coworkers.ogg'],
           loop: true,
           volume: 0.8
         }),
         game: new Howl({
-          urls: ['/audio/bright-eyes.mp3', '/audio/bright-eyes.ogg'],
+          urls: ['audio/bright-eyes.mp3', 'audio/bright-eyes.ogg'],
           loop: true,
           volume: 0.8
         }),
         sfx: {
           success: [
             new Howl({
-              urls: ['/audio/sfx/success/0.ogg']
+              urls: ['audio/sfx/success/0.ogg']
             }),
             new Howl({
-              urls: ['/audio/sfx/success/1.ogg']
+              urls: ['audio/sfx/success/1.ogg']
             }),
             new Howl({
-              urls: ['/audio/sfx/success/2.ogg']
+              urls: ['audio/sfx/success/2.ogg']
             }),
             new Howl({
-              urls: ['/audio/sfx/success/3.ogg']
+              urls: ['audio/sfx/success/3.ogg']
             }),
             new Howl({
-              urls: ['/audio/sfx/success/4.ogg']
+              urls: ['audio/sfx/success/4.ogg']
             })
           ],
           failure: [
             new Howl({
-              urls: ['/audio/sfx/failure/0.ogg']
+              urls: ['audio/sfx/failure/0.ogg']
             })
           ]
         }
